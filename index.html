@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ciencia — Centro de Temas</title>
+  <meta name="description" content="Portal educativo: artículos, categorías y recursos sobre ciencia, física, filosofía y más." />
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f1724; --muted:#9aa6b2; --accent:#38bdf8; --glass: rgba(255,255,255,0.04);
+      --radius:12px; --gap:18px; --max-width:1100px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,#071023 0%, #081424 100%); color:#e6eef6}
+    header{background:linear-gradient(90deg,#06203a,#0b3b66); padding:22px 18px; position:sticky; top:0; z-index:30; box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .container{max-width:var(--max-width); margin:18px auto; padding:0 16px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(45deg,var(--accent),#6ee7b7);display:flex;align-items:center;justify-content:center;font-weight:700;color:#022;margin-right:6px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:4px 0 0; color:var(--muted); font-size:13px}
+
+    /* layout */
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .searchbar{display:flex;align-items:center;gap:8px;background:var(--glass);padding:8px;border-radius:999px;width:100%;max-width:520px}
+    .searchbar input{background:transparent;border:0;color:inherit;outline:none;width:100%;font-size:14px}
+    .actions{display:flex;gap:10px;align-items:center}
+    .btn{background:var(--accent); color:#012; padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(56,189,248,0.15)}
+
+    main{display:grid;grid-template-columns:260px 1fr; gap:var(--gap); align-items:start; margin-top:22px}
+
+    /* sidebar */
+    aside{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:16px;border-radius:var(--radius)}
+    .categories{display:flex;flex-direction:column;gap:8px}
+    .category{padding:10px 12px;border-radius:9px;cursor:pointer;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+    .category.active{background:rgba(56,189,248,0.08);color:var(--accent);font-weight:700}
+
+    /* content */
+    .controls{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+    .card{background:var(--card); padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);display:flex;flex-direction:column;gap:10px}
+    .card-img{width:100%;border-radius:8px;display:block}
+
+/* Clases para ajustar imágenes individualmente */
+.img-ciencia{height:180px;object-fit:cover;object-position:center}
+.img-fisica{height:200px;object-fit:cover;object-position:center}
+.img-filosofia{height:220px;object-fit:cover;object-position:center}
+.img-tecnologia{height:170px;object-fit:cover;object-position:center}
+    .meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+    .title{font-size:16px;margin:0}
+    .excerpt{color:var(--muted);font-size:13px}
+    .tags{display:flex;gap:6px;flex-wrap:wrap}
+    .tag{font-size:12px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);color:var(--muted)}
+
+    /* modal */
+    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(2,6,23,0.7);display:none;align-items:center;justify-content:center;padding:24px}
+    .modal.open{display:flex}
+    .modal-content{width:100%;max-width:900px;background:linear-gradient(180deg,#071826,#082233);padding:20px;border-radius:14px;overflow:auto;max-height:85vh}
+    .modal-content h2{margin-top:0}
+
+    /* bookmarks */
+    .mini-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .mini-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02)}
+
+    footer{margin-top:30px;color:var(--muted);text-align:center}
+
+    /* responsive */
+    @media (max-width:900px){main{grid-template-columns:1fr} aside{order:2} .container{padding:6px}}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container topbar">
+      <div class="brand">
+        <div class="logo">Ci</div>
+        <div>
+          <h1>Ciencia — Centro de Temas</h1>
+          <p class="lead">Explora artículos por categoría, guarda lecturas y busca por palabras clave</p>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="searchbar" role="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.7"><path d="M21 21l-4.35-4.35" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input id="search" placeholder="Busca artículos, autores o temas..." aria-label="Buscar" />
+        </div>
+        <div class="actions">
+          <button class="btn" id="toggleTheme">Modo</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <main>
+      <aside aria-label="Barra lateral">
+        <h3 style="margin:0 0 10px 0">Categorías</h3>
+        <div class="categories" id="categories"></div>
+
+        <h4 style="margin-top:16px;color:var(--muted)">Guardados</h4>
+        <div class="mini-list" id="bookmarks"></div>
+
+        <div style="margin-top:14px;color:var(--muted);font-size:13px">Atajos: usa <kbd>Enter</kbd> para buscar, <kbd>Esc</kbd> para cerrar lectura</div>
+      </aside>
+
+      <section>
+        <div class="controls">
+          <div id="filterInfo" style="color:var(--muted)">Mostrando <b id="count">0</b> artículos</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="color:var(--muted);font-size:13px">Ordenar:</label>
+            <select id="sort">
+              <option value="new">Más recientes</option>
+              <option value="old">Más antiguos</option>
+              <option value="alpha">A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <footer>
+          <p>Proyecto educativo — Puedes editar los artículos en el archivo HTML.</p>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal lectura -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content" role="document">
+      <button id="closeModal" style="float:right;background:transparent;border:0;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
+      <h2 id="modalTitle">Título</h2>
+      <div id="modalMeta" style="color:var(--muted);font-size:13px;margin-bottom:12px"></div>
+      <div id="modalBody" style="line-height:1.6;color:#dfe9f2"></div>
+      <div style="margin-top:18px;display:flex;gap:8px">
+        <button class="btn" id="bookmarkBtn">Guardar</button>
+        <button class="btn secondary" id="shareBtn">Compartir (copiar enlace)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Datos de ejemplo =====
+    const ARTICLES = [
+      {id:1,title:'¿Qué es la materia oscura?',category:'Astronomía',excerpt:'Una mirada accesible a la materia oscura y por qué importa.',date:'2026-01-10',tags:['cosmología','universo'],image:'Imagenes/Materia oscura/pmateria oscura.jfif',content:`<p>La materia oscura es una forma de materia que no interactúa con la luz... (texto de ejemplo).</p><p>Su detección es indirecta: vemos efectos gravitacionales en las galaxias.</p>`},
+      {id:2,title:'Introducción a la mecánica cuántica',category:'Física',excerpt:'Principios básicos para entender lo mínimo en la naturaleza.',date:'2025-11-05',tags:['cuántica','física'],image:'Imagenes/Mecanica Cuantica/pmecanicacuantica.jfif',content:`<p>La mecánica cuántica describe el comportamiento de partículas a escalas muy pequeñas...</p>`},
+      {id:3,title:'¿Puede la IA pensar?',category:'Tecnología',excerpt:'Discusión entre capacidades y límites de la inteligencia artificial.',date:'2025-12-20',tags:['IA','ética'],image:'Imagenes/Inteligencia Artificial/pIA.jpeg',content:`<p>La IA actual resuelve tareas específicas mediante aprendizaje de datos...</p>`},
+      {id:4,title:'Filosofía de la ciencia: método y certeza',category:'Filosofía',excerpt:'Sobre cómo la ciencia busca evidencia y explica el mundo.',date:'2024-09-12',tags:['epistemología'],image:'Imagenes/Filosofia/pfilosofia.jpg',content:`
+    <h2>Filosofía de la ciencia: método, explicación y certeza</h2>
+
+    <p><strong>Resumen:</strong> Este artículo explora cómo la ciencia genera y evalúa conocimiento: el método científico, criterios de demarcación (falsabilidad), teorías sobre confirmación, modelos de explicación científica, debates entre realismo y antirrealismo, estudios de caso históricos y herramientas prácticas para analizar teorías científicas.</p>
+
+    <h3>1. ¿Qué hace la filosofía de la ciencia?</h3>
+    <p>Investiga las bases, métodos y alcance del conocimiento científico: ¿qué distingue a la ciencia de otras formas de saber? ¿Cómo evaluamos teorías? ¿Qué significa explicar algo científicamente?</p>
+
+    <h3>2. El método científico (visión estructurada)</h3>
+    <ol>
+      <li><strong>Observación:</strong> recopilación sistemática de datos.</li>
+      <li><strong>Formulación de hipótesis:</strong> proposiciones tentativas con capacidad predictiva.</li>
+      <li><strong>Predicción:</strong> derivación de consecuencias observables.</li>
+      <li><strong>Experimentación/Observación adicional:</strong> contrastar predicciones con datos.</li>
+      <li><strong>Evaluación y revisión:</strong> ajustar, ampliar o abandonar la hipótesis.</li>
+    </ol>
+    <p>Importante: el método no es un algoritmo rígido; es una práctica con variaciones (observacional, experimental, comparativa, modelado matemático, simulación).</p>
+
+    <h3>3. Demarcación: ¿qué es ciencia y qué no?</h3>
+    <p>Uno de los problemas clásicos es <em>demarcar</em> la ciencia. Propuestas relevantes:</p>
+    <ul>
+      <li><strong>Karl Popper — falsabilidad:</strong> una teoría es científica si, y solo si, es falsable; debe permitir predicciones que puedan contradecirla. Ej.: la hipótesis "todos los cisnes son blancos" es falsable (basta un cisne negro).</li>
+      <li><strong>Criticismos:</strong> la ciencia práctica incluye teorías confirmadas por evidencia indirecta y auxiliares teóricos (problemas de Lakatos y Duhem).</li>
+    </ul>
+
+    <h3>4. Confirmación y probabilidad: una introducción</h3>
+    <p>¿Qué significa que los datos confirmen una teoría? Dos enfoques comunes:</p>
+    <ul>
+      <li><strong>Frecuentista / pruebas hipotéticas:</strong> se evalúa la probabilidad de los datos bajo la hipótesis nula.</li>
+      <li><strong>Bayesiano:</strong> se actualizan probabilidades de hipótesis ante nueva evidencia usando el teorema de Bayes.</li>
+    </ul>
+
+    <h4>Ejemplo bayesiano (cálculo paso a paso)</h4>
+    <p><em>Situación simple:</em> una teoría H tiene una probabilidad previa P(H) = 0.30. Observamos un dato E que tiene probabilidad P(E|H) = 0.80 si H es verdadera, y P(E|¬H) = 0.20 si H es falsa. ¿Cuál es la probabilidad posterior P(H|E)?</p>
+    <pre>
+    Datos:
+    P(H)   = 0.30
+    P(¬H)  = 1 - P(H) = 1 - 0.30 = 0.70
+    P(E|H) = 0.80
+    P(E|¬H)= 0.20
+
+    Teorema de Bayes:
+    P(H|E) = P(E|H)·P(H) / [ P(E|H)·P(H) + P(E|¬H)·P(¬H) ]
+
+    Cálculo paso a paso (digit by digit):
+
+    1) Multiplicamos P(E|H) · P(H):
+       0.80 × 0.30 = 0.2400
+       (porque 8 × 3 = 24 → colocando dos decimales → 0.24)
+
+    2) Multiplicamos P(E|¬H) · P(¬H):
+       0.20 × 0.70 = 0.1400
+       (2 × 7 = 14 → dos decimales → 0.14)
+
+    3) Sumamos denominador:
+       0.2400 + 0.1400 = 0.3800
+
+    4) Dividimos numerador entre denominador:
+       0.24 ÷ 0.38 ≈ 0.631578947...
+       (operación: 0.24/0.38 ≈ 0.6315789)
+
+    Resultado:
+    P(H|E) ≈ 0.632 → 63.2%
+    </pre>
+    <p>Interpretación: la evidencia E aumenta la credibilidad de H de 30 % a ~63 %.</p>
+
+    <h3>5. Modelos de explicación científica</h3>
+    <p>¿Qué hace que una teoría explique algo? Algunas propuestas:</p>
+    <ul>
+      <li><strong>Modelo deducción-nomológico (Hempel–Oppenheim):</strong> explicar es deducir el fenómeno a partir de leyes y condiciones iniciales. Ej.: explicar la caída de un objeto usando la ley de la gravedad.</li>
+      <li><strong>Modelo causal:</strong> una explicación señala las causas que producen el fenómeno; es prominente en ciencias empíricas y en biomedicina.</li>
+      <li><strong>Teorías de la unificación (Kuhn, Friedman):</strong> una buena explicación unifica varios fenómenos bajo principios más simples.</li>
+    </ul>
+    <p>Cada modelo apunta a distintos aspectos: predictibilidad, causalidad, parsimonia, y fuerza heurística.</p>
+
+    <h3>6. Realismo vs antirrealismo</h3>
+    <p>Pregunta central: ¿las teorías científicas describen la realidad (incluso entidades no observables) o sólo sirven como instrumentos predictivos?</p>
+    <ul>
+      <li><strong>Realismo científico:</strong> las mejores teorías ofrecen creencias aproximadamente verdaderas sobre entidades (electrones, agujeros negros).</li>
+      <li><strong>Antirrealismo / instrumentalismo:</strong> las teorías son herramientas para predecir; no es necesario creer en la existencia literal de todas sus entidades.</li>
+    </ul>
+    <p>Argumentos a favor del realismo incluyen la <em>ética de la explicación</em> y el <em>éxito histórico} de teorías que postularon entidades no observables que luego fueron confirmadas por nuevos métodos.</p>
+
+    <h3>7. Casos históricos y lecciones</h3>
+    <h4>Ejemplo: Predicción y descubrimiento de Neptuno</h4>
+    <p>Problema: anomalías en la órbita de Urano. Solución: hipótesis (Newton válida) + cálculo → predicción de un planeta no observado → observación directa de Neptuno. Lección: teorías + modelos cuantitativos generan predicciones exitosas que refuerzan su credibilidad.</p>
+
+    <h4>Ejemplo: Cambio de paradigma (Kuhn)</h4>
+    <p>La revolución copernicana o la transición de la física clásica a la relatividad muestran que la ciencia puede experimentar rupturas donde cambian marcos teóricos fundamentales. Kuhn muestra que además de datos, existen factores sociológicos y heurísticos en la adopción de teorías.</p>
+
+    <h3>8. Problemas y críticas contemporáneas</h3>
+    <ul>
+      <li><strong>Holismo de la prueba (Duhem–Quine):</strong> las hipótesis no se prueban solas; siempre con supuestos auxiliares, lo que dificulta identificar qué fue falsado por una discrepancia.</li>
+      <li><strong>Sesgos y práctica científica:</strong> publicación selectiva, sesgos de confirmación y presiones institucionales pueden distorsionar procesos de validación.</li>
+      <li><strong>Explicaciones computacionales y modelos complejos:</strong> simulaciones numéricas y aprendizaje automático generan modelos predictivos potentes pero a veces difíciles de interpretar causalmente.</li>
+    </ul>
+
+    <h3>9. Herramientas prácticas para evaluar teorías</h3>
+    <ul>
+      <li>Examinar predictividad: ¿la teoría hace predicciones nuevas y verificables?</li>
+      <li>Consistencia interna: ¿existen contradicciones lógicas o matemáticas?</li>
+      <li>Robustez: ¿los resultados persisten bajo variaciones razonables de supuestos?</li>
+      <li>Parsimony / sencillez: entre teorías igualmente predictivas, la más simple suele preferirse (navaja de Occam).</li>
+      <li>Análisis bayesiano: actualizar creencias numéricamente ante nueva evidencia (como el ejemplo anterior).</li>
+    </ul>
+
+    <h3>10. Ejercicios y preguntas de práctica</h3>
+    <ol>
+      <li>Analiza el siguiente caso: dos teorías A y B explican un conjunto de datos, A es más simple pero B explica mejor una anomalía. ¿Cuál deberías preferir y por qué?</li>
+      <li>Aplica el teorema de Bayes a un ejemplo real de detección (por ejemplo, confirmación de una partícula) usando probabilidades previas y verosimilitudes.</li>
+      <li>Elabora un experimento que ponga a prueba la falsabilidad de una afirmación científica concreta.</li>
+    </ol>  `
+},
+      {id:5,title:'CRISPR y edición genética',category:'Biología',excerpt:'Qué es CRISPR y sus aplicaciones actuales.',date:'2026-02-01',tags:['genética','biotecnología'],image:'Imagenes/Crispr/pcrispr.webp',content:`<p>CRISPR es una herramienta que permite editar el ADN de manera precisa...</p>`},
+      {id:6,title:'Termodinámica: leyes y ejemplos',category:'Física',excerpt:'Una guía práctica para comprender la energía y el calor.',date:'2023-06-21',tags:['energía','calor'],image:'Imagenes/Termodinamica/ptermodinamica.avif',content:`<h2>Termodinámica: leyes y ejemplos</h2>
+
+<p><strong>Una guía práctica para comprender la energía y el calor.</strong>  
+Este artículo explica los conceptos básicos de la termodinámica, sus cuatro leyes, fórmulas esenciales, ejemplos resueltos y aplicaciones reales.</p>
+
+<h3>1. ¿Qué es la termodinámica?</h3>
+<p>La termodinámica es la rama de la física que estudia la energía, sus transformaciones y la relación entre calor, trabajo y otras formas de energía. Es fundamental para ingeniería, química, meteorología, biología y muchas tecnologías (motores, refrigeración, centrales eléctricas).</p>
+
+<h3>2. Conceptos clave</h3>
+<ul>
+  <li><strong>Sistema y entorno:</strong> El sistema es la porción de materia o volumen que estudiamos; el entorno (o alrededores) es todo lo demás.</li>
+  <li><strong>Trabajo (W):</strong> energía transferida por fuerzas macroscópicas (por ejemplo, un pistón).</li>
+  <li><strong>Calor (Q):</strong> energía transferida por diferencia de temperatura.</li>
+  <li><strong>Energía interna (U):</strong> suma de energías microscópicas (energía cinética y potencial a nivel molecular).</li>
+  <li><strong>Entropía (S):</strong> medida de la dispersión de la energía; ligada a la irreversibilidad.</li>
+</ul>
+
+<h3>3. Las leyes de la termodinámica</h3>
+
+<h4>Zeroth (0ª ley)</h4>
+<p>Si el sistema A está en equilibrio térmico con B, y B con C, entonces A está en equilibrio térmico con C. Esto permite definir la <em>temperatura</em> como propiedad transitable.</p>
+
+<h4>Primera ley (conservación de la energía)</h4>
+<p>Para un sistema cerrado (sin intercambio de masa):</p>
+<p><strong>ΔU = Q − W</strong></p>
+<ul>
+  <li>ΔU: cambio de energía interna</li>
+  <li>Q: calor suministrado al sistema (positivo si entra)</li>
+  <li>W: trabajo realizado por el sistema (positivo si sale)</li>
+</ul>
+<p>Interpretación: la energía interna cambia por el calor añadido menos el trabajo realizado por el sistema.</p>
+
+<h4>Segunda ley</h4>
+<p>Introduce la dirección natural de los procesos y la entropía. Principios útiles:</p>
+<ul>
+  <li>Es imposible un proceso cuya única consecuencia sea transferir calor desde un cuerpo frío a uno caliente sin aporte de trabajo.</li>
+  <li>En cualquier proceso irreversible en un sistema aislado, la entropía total <strong>aumenta</strong>: ΔS > 0.</li>
+  <li>Clausius (forma cuantitativa): para cualquier ciclo, ∮ δQ/T ≤ 0.</li>
+</ul>
+
+<h4>Tercera ley</h4>
+<p>A medida que la temperatura absoluta se aproxima a 0 K, la entropía de un cristal perfecto tiende a un valor constante (usualmente cero). En la práctica implica que no es posible alcanzar el cero absoluto mediante un número finito de procesos.</p>
+
+<h3>4. Fórmulas y relaciones útiles</h3>
+<ul>
+  <li>Trabajo en un proceso quasiestático (p-V): <strong>W = ∫ p dV</strong></li>
+  <li>Capacidad calorífica: <strong>Q = m · c · ΔT</strong> (m masa, c calor específico)</li>
+  <li>Eficiencia térmica de un ciclo (η): <strong>η = W/Q_in</strong></li>
+  <li>Eficiencia ideal de Carnot: <strong>η_Carnot = 1 - T_c / T_h</strong> (temperaturas en kelvin)</li>
+  <li>Relación entre entalpía H y U: <strong>H = U + pV</strong></li>
+</ul>
+
+<h3>5. Ejemplos resueltos paso a paso</h3>
+
+<h4>Ejemplo A — Calor necesario para subir la temperatura</h4>
+<p><strong>Enunciado:</strong> ¿Cuánto calor necesita 2,00 kg de agua para aumentar su temperatura de 20,0 °C a 50,0 °C? (c<sub>agua</sub> = 4186 J·kg<sup>−1</sup>·K<sup>−1</sup>).</p>
+
+<p><strong>Solución:</strong></p>
+<p>Usamos Q = m · c · ΔT.</p>
+<pre>
+m = 2.00 kg
+c = 4186 J·kg⁻¹·K⁻¹
+ΔT = 50.0 − 20.0 = 30.0 K
+</pre>
+
+<p>Calculo paso a paso (digit by digit):</p>
+<pre>
+1) m · c = 2.00 × 4186
+   2.00 × 4186 = 8372.0            (porque 2 × 4186 = 8372)
+
+2) Q = (m·c) × ΔT = 8372.0 × 30.0
+   8372 × 30 = 251160             (8372 × 3 = 25116 → times 10 → 251160)
+
+Resultado: Q = 251160 J ≈ 2.51 × 10^5 J
+</pre>
+
+---
+
+<h4>Ejemplo B — Eficiencia de un motor de Carnot</h4>
+<p><strong>Enunciado:</strong> Un motor opera entre 500 K (fuente caliente) y 300 K (fuente fría). ¿Cuál es la eficiencia máxima teórica?</p>
+
+<p><strong>Solución:</strong> η = 1 − T_c/T_h</p>
+<pre>
+T_h = 500 K
+T_c = 300 K
+
+Paso 1: T_c / T_h = 300 / 500
+        300 ÷ 500 = 0.6
+
+Paso 2: η = 1 − 0.6 = 0.4 = 40%
+
+Resultado: eficiencia máxima 40%
+</pre>
+
+---
+
+<h4>Ejemplo C — Trabajo útil de un motor conocido η</h4>
+<p><strong>Enunciado:</strong> Si un motor recibe Q_in = 500 kJ de calor y su eficiencia real es 40 %, ¿qué trabajo realiza?</p>
+
+<p><strong>Solución:</strong></p>
+<pre>
+Q_in = 500 kJ
+η = 0.40
+
+W = η · Q_in = 0.40 × 500 kJ
+
+Paso 1: 0.40 × 500 = 200.0
+
+Resultado: W = 200 kJ
+</pre>
+
+<h3>6. Procesos termodinámicos comunes</h3>
+<ul>
+  <li><strong>Isotérmico:</strong> T constante. Para gas ideal, ΔU = 0, Q = W.</li>
+  <li><strong>Isobárico:</strong> p constante. W = p ΔV.</li>
+  <li><strong>Isocórico (isochoric):</strong> V constante. W = 0, ΔU = Q.</li>
+  <li><strong>Adiabático:</strong> Q = 0. ΔU = −W (para sistema que realiza trabajo ΔU disminuye).</li>
+</ul>
+
+<h3>7. Aplicaciones prácticas</h3>
+<ul>
+  <li><strong>Motores térmicos:</strong> automóviles, plantas de energía.</li>
+  <li><strong>Refrigeración y bombas de calor:</strong> principio inverso de un motor; trabajo para mover calor de un lugar frío a uno caliente.</li>
+  <li><strong>Ingeniería química:</strong> balances de energía en reactores.</li>
+  <li><strong>Climatización y meteorología:</strong> procesos adiabáticos en la atmósfera producen cambios de temperatura en parcelas de aire.</li>
+</ul>
+
+<h3>8. Sugerencias para estudiar</h3>
+<ul>
+  <li>Practica problemas con <em>constantes</em> reales (c, R, calores específicos).</li>
+  <li>Dibuja diagramas p-V y T-S para visualizar ciclos y áreas (el área bajo la curva p-V es trabajo).</li>
+  <li>Familiarízate con la diferencia entre reversible e irreversible — la segunda ley se entiende mejor con ejemplos reales.</li>
+</ul>
+
+<h3>9. Problemas de práctica (sin resolver)</h3>
+<ol>
+  <li>Un gas ideal se comprime adiabáticamente reduciendo su volumen a la mitad. Si la temperatura inicial era 400 K, ¿cómo cambia la temperatura final (suponiendo γ = 1.4)? (pista: para adiabático reversible, T V^{γ−1} = constante).</li>
+  <li>Calcula la cantidad de calor necesaria para evaporar 0.5 kg de agua a 100 °C (entalpía de vaporización ≈ 2256 kJ/kg).</li>
+  <li>Para un ciclo de Carnot entre 800 K y 300 K, determina η y el trabajo si Q_in = 1 MJ.</li>
+</ol>
+
+<h3>10. Referencias y lectura recomendada</h3>
+<ul>
+  <li>Enfoques introductorios: libros de física general (tipicamente capítulos de termodinámica).</li>
+  <li>Clásicos: "Fundamentos de termodinámica" y textos de ingeniería térmica.</li>
+  <li>Sitios útiles: notas de cursos de universidad y material de Khan Academy / MIT OpenCourseWare para problemas resueltos y animaciones.</li>
+</ul>
+
+<p style="margin-top:12px"><em>¿Quieres que convierta este artículo en una entrada completa para tu sitio (objeto de tu array <code>ARTICLES</code>) con imagen sugerida, etiqueta y fecha listos para pegar?</em></p>`}
+    ];
+
+    // ===== estado =====
+    const state = {category:'Todas',query:'',sort:'new'};
+
+    // ===== utilidades DOM =====
+    const categoriesEl = document.getElementById('categories');
+    const gridEl = document.getElementById('grid');
+    const searchEl = document.getElementById('search');
+    const countEl = document.getElementById('count');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalMeta = document.getElementById('modalMeta');
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+    const bookmarksEl = document.getElementById('bookmarks');
+    const sortEl = document.getElementById('sort');
+
+    // ===== categorías dinámicas =====
+    const allCategories = ['Todas',...new Set(ARTICLES.map(a=>a.category))];
+    function renderCategories(){
+      categoriesEl.innerHTML='';
+      allCategories.forEach(cat=>{
+        const el = document.createElement('div');
+        el.className='category'+(state.category===cat?' active':'');
+        el.tabIndex = 0;
+        el.innerHTML = `<span>${cat}</span><span style="opacity:0.7">${cat==='Todas'?ARTICLES.length:ARTICLES.filter(x=>x.category===cat).length}</span>`;
+        el.addEventListener('click',()=>{ state.category=cat; render(); renderCategories(); });
+        el.addEventListener('keydown',(e)=>{ if(e.key==='Enter') { state.category=cat; render(); renderCategories(); } });
+        categoriesEl.appendChild(el);
+      });
+    }
+
+    // ===== render grid =====
+    function filterArticles(){
+      let arr = ARTICLES.slice();
+      if(state.category!== 'Todas') arr = arr.filter(a=>a.category===state.category);
+      if(state.query) {
+        const q = state.query.toLowerCase();
+        arr = arr.filter(a=> (a.title+a.excerpt+(a.tags||[]).join(' ')).toLowerCase().includes(q));
+      }
+      if(state.sort==='new') arr.sort((a,b)=> new Date(b.date) - new Date(a.date));
+      if(state.sort==='old') arr.sort((a,b)=> new Date(a.date) - new Date(b.date));
+      if(state.sort==='alpha') arr.sort((a,b)=> a.title.localeCompare(b.title));
+      return arr;
+    }
+
+    function render(){
+      const list = filterArticles();
+      gridEl.innerHTML='';
+      countEl.textContent = list.length;
+      list.forEach(a=>{
+        const card = document.createElement('article');
+        card.className='card';
+        card.innerHTML = `
+          <img loading="lazy" src="${a.image}" alt="${a.title}" />
+          <div class="meta"><div>${a.category}</div><div>${a.date}</div></div>
+          <h3 class="title">${a.title}</h3>
+          <p class="excerpt">${a.excerpt}</p>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="tags">${(a.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" data-id="${a.id}">Leer</button>
+              <button class="btn secondary" data-book="${a.id}">★</button>
+            </div>
+          </div>
+        `;
+        gridEl.appendChild(card);
+      });
+
+      // agregar listeners
+      gridEl.querySelectorAll('button[data-id]').forEach(b=>b.addEventListener('click',()=> openArticle(b.dataset.id)));
+      gridEl.querySelectorAll('button[data-book]').forEach(b=>b.addEventListener('click',(e)=>{toggleBookmark(e.target.dataset.book)}));
+
+      renderBookmarks();
+    }
+
+    // ===== modal lectura =====
+    function openArticle(id){
+      const a = ARTICLES.find(x=>x.id==id);
+      if(!a) return;
+      modalTitle.textContent = a.title;
+      modalMeta.innerHTML = `${a.category} • ${a.date} • <span style="color:var(--muted)">Tags: ${a.tags.join(', ')}</span>`;
+      modalBody.innerHTML = a.content;
+      bookmarkBtn.dataset.id = a.id;
+      modal.classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+
+    document.getElementById('closeModal').addEventListener('click',closeModal);
+    modal.addEventListener('click',(e)=>{ if(e.target===modal) closeModal(); });
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeModal(); });
+    function closeModal(){ modal.classList.remove('open'); document.body.style.overflow=''; }
+
+    // ===== bookmarks (localStorage) =====
+    function getBookmarks(){ try{ return JSON.parse(localStorage.getItem('ciencia_bookmarks')||'[]') }catch(e){return[]} }
+    function saveBookmarks(arr){ localStorage.setItem('ciencia_bookmarks', JSON.stringify(arr)); }
+    function toggleBookmark(id){ const arr = getBookmarks(); const i = arr.indexOf(Number(id)); if(i===-1) arr.push(Number(id)); else arr.splice(i,1); saveBookmarks(arr); renderBookmarks(); }
+    function renderBookmarks(){ const arr = getBookmarks(); bookmarksEl.innerHTML=''; if(arr.length===0){ bookmarksEl.innerHTML='<div style="color:var(--muted);font-size:13px">(Sin guardados)</div>'; return; } arr.forEach(id=>{ const a = ARTICLES.find(x=>x.id===id); if(!a) return; const el = document.createElement('div'); el.className='mini-item'; el.innerHTML = `<div style="font-size:13px">${a.title}</div><div style="display:flex;gap:8px"><button class="btn" data-open="${a.id}">Abrir</button><button class="btn secondary" data-remove="${a.id}">Quitar</button></div>`; bookmarksEl.appendChild(el); });
+      bookmarksEl.querySelectorAll('button[data-open]').forEach(b=>b.addEventListener('click',e=>openArticle(e.target.dataset.open)));
+      bookmarksEl.querySelectorAll('button[data-remove]').forEach(b=>b.addEventListener('click',e=>{ const arr = getBookmarks(); const id = Number(e.target.dataset.remove); saveBookmarks(arr.filter(x=>x!==id)); renderBookmarks(); }));
+    }
+
+    // ===== búsqueda, orden y eventos =====
+    searchEl.addEventListener('input',()=>{ state.query = searchEl.value; render(); });
+    searchEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter') render(); });
+    sortEl.addEventListener('change',()=>{ state.sort = sortEl.value; render(); });
+
+    // compartir: copia un "link" simulado (puede integrarse con back-end)
+    document.getElementById('shareBtn').addEventListener('click',()=>{ const t = modalTitle.textContent; navigator.clipboard && navigator.clipboard.writeText(`${location.href.split('#')[0]}#art-${t.replace(/\s+/g,'_')}`).then(()=>alert('Enlace copiado al portapapeles')) });
+    bookmarkBtn.addEventListener('click',(e)=>{ toggleBookmark(e.target.dataset.id); alert('Guardado/quitado de tus lecturas'); });
+
+    // tema toggle (modo claro — oscuro simple)
+    const toggleTheme = document.getElementById('toggleTheme');
+    toggleTheme.addEventListener('click',()=>{
+      if(document.documentElement.style.getPropertyValue('--bg')===''){
+        document.documentElement.style.setProperty('--bg','#f7fafc');
+        document.documentElement.style.setProperty('--card','#ffffff');
+        document.documentElement.style.setProperty('--muted','#475569');
+        document.documentElement.style.setProperty('--accent','#2563eb');
+      } else {
+        document.documentElement.style.removeProperty('--bg');
+        document.documentElement.style.removeProperty('--card');
+        document.documentElement.style.removeProperty('--muted');
+        document.documentElement.style.removeProperty('--accent');
+      }
+    });
+
+    // inicializar
+    renderCategories(); render(); renderBookmarks();
+
+  </script>
+</body>
+</html>
